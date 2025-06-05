@@ -314,6 +314,9 @@ Monitor worker logs in the RunPod Console under Endpoint Details > Logs tab.
    - Verify audio file format is supported
    - Check base64 encoding is properly formatted
    - Ensure audio file size is reasonable
+5. **Cuda not avaiable error on Runpod**: (Already fixed in Dockerfile)
+   - when installing chatterbox-tts, pip installs chatterbox-tts including its specified torch==2.6.0 and torchaudio==2.6.0 (which will be CPU-only from PyPI if not constrained).
+   - **Solution**: Running `pip install --force-reinstall torch==2.6.0+cu124 torchaudio==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124` after installing chatterbox-tts overwrites the previously installed torch and torchaudio with the CUDA-enabled versions from the PyTorch wheel index. The versions (2.6.0) match, but the build (+cu124) is different.
 
 ### Performance Optimization
 
