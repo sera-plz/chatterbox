@@ -1,0 +1,161 @@
+{
+  "tests": [
+    {
+      "name": "basic_tts_generation",
+      "input": {
+        "text": "Hello world, this is a test of the Chatterbox text-to-speech system.",
+        "output_format": "wav"
+      },
+      "timeout": 15000
+    },
+    {
+      "name": "emotional_speech_test",
+      "input": {
+        "text": "I'm so excited to share this amazing news with you! This is absolutely incredible!",
+        "exaggeration": 0.8,
+        "cfg_weight": 0.3,
+        "output_format": "wav"
+      },
+      "timeout": 20000
+    },
+    {
+      "name": "neutral_speech_test",
+      "input": {
+        "text": "The weather today is partly cloudy with a high of 72 degrees Fahrenheit.",
+        "exaggeration": 0.2,
+        "cfg_weight": 0.5,
+        "output_format": "wav"
+      },
+      "timeout": 15000
+    },
+    {
+      "name": "long_text_chunking_test",
+      "input": {
+        "text": "This is a longer text passage designed to test the automatic chunking functionality. When processing extensive content, the system should intelligently split the text at natural boundaries like sentence endings. This ensures smooth and coherent audio generation even for lengthy inputs. The chunking mechanism is essential for handling large documents, articles, or even entire book chapters without running into memory limitations or processing constraints.",
+        "chunk_text": true,
+        "output_format": "wav"
+      },
+      "timeout": 30000
+    },
+    {
+      "name": "voice_cloning_test",
+      "input": {
+        "text": "This audio is being generated using voice cloning technology to match a reference speaker.",
+        "audio_prompt_path": "https://github.com/resemble-ai/chatterbox/raw/master/audio_samples/reference_voice.wav",
+        "output_format": "wav"
+      },
+      "timeout": 25000
+    },
+    {
+      "name": "mp3_output_format_test",
+      "input": {
+        "text": "Testing MP3 output format for compressed audio delivery.",
+        "output_format": "mp3"
+      },
+      "timeout": 15000
+    },
+    {
+      "name": "custom_sample_rate_test",
+      "input": {
+        "text": "Testing custom sample rate configuration.",
+        "sample_rate": 22050,
+        "output_format": "wav"
+      },
+      "timeout": 15000
+    },
+    {
+      "name": "minimal_input_test",
+      "input": {
+        "text": "Hi"
+      },
+      "timeout": 10000
+    },
+    {
+      "name": "punctuation_handling_test",
+      "input": {
+        "text": "Well... I wasn't sure what to say! But then I thought: why not? After all, it's worth trying—right?",
+        "output_format": "wav"
+      },
+      "timeout": 20000
+    },
+    {
+      "name": "numeric_content_test",
+      "input": {
+        "text": "The year 2025 marks the 50th anniversary. The event starts at 3:30 PM and costs $99.99.",
+        "output_format": "wav"
+      },
+      "timeout": 15000
+    },
+    {
+      "name": "performance_benchmark_test",
+      "input": {
+        "text": "Quick performance test with default settings.",
+        "exaggeration": 0.5,
+        "cfg_weight": 0.5,
+        "chunk_text": false,
+        "output_format": "wav"
+      },
+      "timeout": 10000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "env": [
+      {
+        "key": "MODEL_NAME",
+        "value": "ResembleAI/chatterbox"
+      },
+      {
+        "key": "DEVICE",
+        "value": "cuda"
+      },
+      {
+        "key": "MAX_LENGTH",
+        "value": "1024"
+      },
+      {
+        "key": "DEFAULT_EXAGGERATION",
+        "value": "0.5"
+      },
+      {
+        "key": "DEFAULT_CFG_WEIGHT",
+        "value": "0.5"
+      },
+      {
+        "key": "ENABLE_VOICE_CLONE",
+        "value": "true"
+      },
+      {
+        "key": "CHUNK_SIZE",
+        "value": "200"
+      },
+      {
+        "key": "WATERMARK_ENABLED",
+        "value": "true"
+      },
+      {
+        "key": "PYTORCH_CUDA_ALLOC_CONF",
+        "value": "max_split_size_mb:512"
+      },
+      {
+        "key": "CUDA_LAUNCH_BLOCKING",
+        "value": "0"
+      }
+    ],
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0",
+      "11.8",
+      "11.7"
+    ],
+    "minMemoryInGb": 16,
+    "minVolumeInGb": 20
+  }
+}
