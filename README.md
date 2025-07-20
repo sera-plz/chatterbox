@@ -6,7 +6,7 @@
 [![Alt Text](https://img.shields.io/badge/listen-demo_samples-blue)](https://resemble-ai.github.io/chatterbox_demopage/)
 [![Alt Text](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/ResembleAI/Chatterbox)
 [![Alt Text](https://static-public.podonos.com/badges/insight-on-pdns-sm-dark.svg)](https://podonos.com/resembleai/chatterbox)
-[![Discord](https://img.shields.io/discord/1377773249798344776?label=join%20discord&logo=discord&style=flat)](https://discord.gg/XqS7RxUp)
+[![Discord](https://img.shields.io/discord/1377773249798344776?label=join%20discord&logo=discord&style=flat)](https://discord.gg/rJq9cRJBJ6)
 
 _Made with ♥️ by <a href="https://resemble.ai" target="_blank"><img width="100" alt="resemble-logo-horizontal" src="https://github.com/user-attachments/assets/35cf756b-3506-4943-9c72-c05ddfa4e525" /></a>
 
@@ -35,11 +35,37 @@ If you like the model but need to scale or tune it for higher accuracy, check ou
   - Try lower `cfg_weight` values (e.g. `~0.3`) and increase `exaggeration` to around `0.7` or higher.
   - Higher `exaggeration` tends to speed up speech; reducing `cfg_weight` helps compensate with slower, more deliberate pacing.
 
-
-# Installation
+# Project Structure
 ```
+chatterbox/
+├── chatterbox.ipynb                    # Experimentation and Chunking Example
+├── chatterbox-runpod-serverless        # Runpod Deployment Files
+├── Dockerfile                          # Dockerfile for Runpod Deployment
+├── example_for_mac.py                  # Example script for macOS users
+├── example_tts.py                      # Example script for Text-to-Speech
+├── example_vc.py                       # Example script for Voice Conversion
+├── gradio_tts_app.py                   # Gradio application for Text-to-Speech
+├── gradio_vc_app.py                    # Gradio application for Voice Conversion
+├── LICENSE                             # Project license file
+├── pyproject.toml                      # Project build configuration
+├── README.md                           # This file
+└── src                                 # Source code directory
+```
+# Installation
+```shell
 pip install chatterbox-tts
 ```
+
+Alternatively, you can install from source:
+```shell
+# conda create -yn chatterbox python=3.11
+# conda activate chatterbox
+
+git clone https://github.com/resemble-ai/chatterbox.git
+cd chatterbox
+pip install -e .
+```
+We developed and tested Chatterbox on Python 3.11 on Debain 11 OS; the versions of the dependencies are pinned in `pyproject.toml` to ensure consistency. You can modify the code or dependencies in this installation mode.
 
 
 # Usage
@@ -60,12 +86,10 @@ ta.save("test-2.wav", wav, model.sr)
 ```
 See `example_tts.py` and `example_vc.py` for more examples.
 
-# Acknowledgements
-- [Cosyvoice](https://github.com/FunAudioLLM/CosyVoice)
-- [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning)
-- [HiFT-GAN](https://github.com/yl4579/HiFTNet)
-- [Llama 3](https://github.com/meta-llama/llama3)
-- [S3Tokenizer](https://github.com/xingchensong/S3Tokenizer)
+
+# Supported Lanugage
+Currenlty only English.
+
 
 # Built-in PerTh Watermarking for Responsible AI
 
@@ -94,10 +118,20 @@ print(f"Extracted watermark: {watermark}")
 # Output: 0.0 (no watermark) or 1.0 (watermarked)
 ```
 
+# Deployment on Runpod
+- See the [chatterbox-runpod-serverless](chatterbox-runpod-serverless/README.md)
+
+# Acknowledgements
+- [Cosyvoice](https://github.com/FunAudioLLM/CosyVoice)
+- [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning)
+- [HiFT-GAN](https://github.com/yl4579/HiFTNet)
+- [Llama 3](https://github.com/meta-llama/llama3)
+- [S3Tokenizer](https://github.com/xingchensong/S3Tokenizer)
+
 
 # Official Discord
 
-👋 Join us on [Discord](https://discord.gg/XqS7RxUp) and let's build something awesome together!
+👋 Join us on [Discord](https://discord.gg/rJq9cRJBJ6) and let's build something awesome together!
 
 # Disclaimer
 Don't use this model to do bad things. Prompts are sourced from freely available data on the internet.
