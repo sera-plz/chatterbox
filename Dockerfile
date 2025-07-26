@@ -1,56 +1,59 @@
-# Multi-stage Dockerfile for better optimization
-# This is an alternative version that uses multi-stage builds
-
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    python3.10 \
-    python3.10-dev \
-    python3-pip \
-    git \
-    wget \
-    curl \
-    ffmpeg \
-    libsndfile1 \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -s /usr/bin/python3.10 /usr/bin/python \
-    && python -m pip install --upgrade pip
-
-RUN python -m pip install torch==2.6.0+cu124 torchaudio==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124
-WORKDIR /app
-
-
-# Copy requirements and install Python dependencies
-COPY chatterbox-runpod-serverless/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-
-
-
-# Create necessary directories
-RUN mkdir -p /tmp /app/outputs
+# Use PyTorch base image with CUDA support
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-runtime
 
 # Set environment variables
-ENV PYTHONPATH=/app:$PYTHONPATH
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV CUDA_VISIBLE_DEVICES=all
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    CUDA_VISIBLE_DEVICES=0 \
+    TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0" \
+    FORCE_CUDA=1 \
+    CUDA_HOME=/usr/local/cuda \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
-# Copy application code (done last for best cache utilization)
-COPY chatterbox-runpod-serverless/rp_handler.py /app/
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    ffmpeg \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expose port (optional, for debugging)
-EXPOSE 8000
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
-# Add a health check (optional - can be removed if not needed)
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
-  CMD python -c "import torch; print('CUDA available:', torch.cuda.is_available()); exit(0 if torch.cuda.is_available() else 1)" || exit 1
+# Set working directory
+WORKDIR /app
 
-# Start the RunPod handler
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    torch==2.1.2+cu118 \
+    torchaudio==2.1.2+cu118 \
+    --index-url https://download.pytorch.org/whl/cu118 && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Pre-download NLTK data
+RUN python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
+
+# Create directories for model caching
+RUN mkdir -p /runpod-volume/models /app/outputs /tmp
+
+# Copy the handler script
+COPY rp_handler.py .
+
+# Set model cache directory
+ENV MODEL_CACHE_DIR=/runpod-volume/models \
+    HF_HOME=/runpod-volume/models \
+    TORCH_HOME=/runpod-volume/models \
+    TRANSFORMERS_CACHE=/runpod-volume/models/transformers
+
+# Optional: Pre-download models (comment out if you want faster builds)
+# RUN python -c "from chatterbox.tts import ChatterboxTTS; ChatterboxTTS.from_pretrained(device='cpu')" || true
+
+# Test CUDA availability
+RUN python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda}')"
+
+# Start the handler
 CMD ["python", "-u", "rp_handler.py"]
