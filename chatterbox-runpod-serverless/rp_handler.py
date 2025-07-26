@@ -304,13 +304,18 @@ def audio_tensor_to_base64(audio_tensor: torch.Tensor, sample_rate: int) -> str:
 
 def validate_input(job_input: Dict[str, Any]) -> Dict[str, Any]:
     """Validate and normalize input parameters."""
-    # Required parameters
-    if 'text' not in job_input:
-        raise ValueError("Missing required parameter: 'text'")
+    # Required parameters - accept both 'text' and 'prompt' for compatibility
+    text = None
+    if 'text' in job_input:
+        text = job_input['text']
+    elif 'prompt' in job_input:
+        text = job_input['prompt']
+    else:
+        raise ValueError("Missing required parameter: 'text' or 'prompt'")
     
-    text = job_input['text'].strip()
+    text = text.strip()
     if not text:
-        raise ValueError("Text parameter cannot be empty")
+        raise ValueError("Text/prompt parameter cannot be empty")
     
     # Optional parameters with defaults
     validated_input = {
@@ -341,12 +346,19 @@ def validate_input(job_input: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("inter_chunk_silence_ms must be non-negative")
     
     logger.info(f"Input validation successful for text length: {len(text)} characters")
+    logger.info(f"Using parameter: {'text' if 'text' in job_input else 'prompt'}")
     return validated_input
 
 def handler(job):
     """Main handler function for RunPod serverless worker."""
     start_time = time.time()
-    
+    logger.info(f"GPU available: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        logger.info(f"GPU: {torch.cuda.get_device_name()}")
+        logger.info(f"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+
+    if torch.cuda.is_available():
+        torch.cuda.set_device(0)
     try:
         logger.info("=== ChatterboxTTS Handler Started ===")
         
